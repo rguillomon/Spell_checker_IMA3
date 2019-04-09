@@ -66,29 +66,31 @@ void init_tableau_pt(tableau_pt **pt){
 
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre*/
-int ajout_dico(Node **noeud, char mot[TAILLE_MOT]){
+int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
   if (TAILLE_MOT-1 < strlen(mot)){                        // si le mot ne contient pas '\0', on revoie 0
     printf("Le mot n'a pas pu être ajouté.\n");
     return 0;
   }
 
-  if ((*noeud)->car == 0)  init_node(noeud, mot[0], false);         //ajout du caractère mot[0] s'il n'est pas déjà présent
-  
-  if (strlen(mot) == 1){
-    (*noeud)->fin = true;
-    return 1;                     // si le mot ne contient qu'un caractère
-  }
-  
-  else{                                                  // sinon, il y a d'autres caractères à ajouter
-    int i =mot[1]-'a';
+  if (*pt == NULL) init_tableau_pt(pt);
 
-    if ((*noeud)->fils == NULL){                           // si le tableau fils n'est pas initialisé
-      init_tableau_pt(&(*noeud)->fils);
+  int i = mot[0] -'a';
+  if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
+    new_node(&(*pt)->T[i]);
+    (*pt)->T[i]->car = mot[0];
+  }
+
+  if (strlen(mot) == 1){                     // si le mot ne contient qu'un seul caractère
+    (*pt)->T[i]->fin = true;
+    return 1;
+  }
+
+  else{                                                  // sinon, il y a d'autres caractères à ajouter
+    if ((*pt)->T[i]->fils == NULL){                           // si le tableau fils n'est pas initialisé
+      init_tableau_pt(&(*pt)->T[i]->fils);
     }
     
-    if ((*noeud)->fils->T[i] == NULL)   new_node(&(*noeud)->fils-> T[i]);  // si le fils correspondant au caractère suivant (mot[1]) n'existe pas
-    
-    ajout_dico(&(*noeud)->fils->T[i], &mot[1]);      // ajout du caractère suivant
+    ajout_dico(&(*pt)->T[i]->fils, &mot[1]);      // ajout du caractère suivant
   }
   return 1;
 }
@@ -101,13 +103,20 @@ int ajout_dico(Node **noeud, char mot[TAILLE_MOT]){
 
 
 int main(){
-  Node *dico = NULL;
-  new_node(&dico);
+  tableau_pt *dico = NULL;
   ajout_dico(&dico, "abc");
   ajout_dico(&dico, "ab");
   ajout_dico(&dico, "abb");
 
-  free_tree(&dico);
+  printf("%c\n", dico->T[0]->car);
+  printf("%d\n", dico->T[0]->fin);
+  printf("%p\n", dico->T[0]->fils->T[0]);
+  printf("%c\n", dico->T[0]->fils->T[1]->car);
+  printf("%d\n", dico->T[0]->fils->T[1]->fin);
+  printf("%c\n", dico->T[0]->fils->T[1]->fils->T[1]->car);
+  printf("%d\n", dico->T[0]->fils->T[1]->fils->T[2]->fin);
+  
+  free_tableau_pt(&dico);
   return 0;
 }
 
