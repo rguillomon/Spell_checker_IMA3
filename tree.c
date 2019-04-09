@@ -17,84 +17,52 @@ typedef struct node{
 } Node;
 
 
-/* Libération récursive d'un noeud */
-void free_node(Node **pn){
+/* Libération récursive d'un arbre */
+void free_tree(Node **pn){
   if (*pn == NULL) return ;
-  if ((*pn)->fils == NULL){
-    free(*pn);
-    *pn=NULL;
-  }
-  else{
-    for (int i=0 ; i<NB_CAR ;i++){
-      if ((*pn)->fils->T[i] != NULL){
-	free_node(&(*pn)->fils->T[i]);
-      }
-    }
-  }
+  if ((*pn)->fils != NULL) free_tableau_pt(&(*pn)->fils);
+  free(*pn);
+  *pn=NULL;
+
   return;
 }
 
+void free_tableau_pt(tableau_pt **pt){
+  if (*pt == NULL) return ;
+  for (int i=0 ; i<NB_CAR ;i++){
+    if ((*pt)->T[i] != NULL)      free_tree(&(*pt)->T[i]);
+  }
+  free(*pt);
+  *pt = NULL;
+  return ;
+}
 
-/* Fonction initialisant un arbre ; renvoie un pointeur de noeud*/
-void init_tree(Node **pn){
-  *pn=malloc(sizeof(Node));
+
+/* Fonction initialisant les composantes d'un noeud */
+void init_node(Node **pn, char car, bool fin){
+  if (*pn==NULL)    *pn = malloc(sizeof(Node));
+  (*pn)->car = car;
+  (*pn)->fin = fin;
+}
+
+
+/* Fonction créant un noeud */
+void new_node(Node **pn){
+  if (*pn==NULL) *pn=malloc(sizeof(Node));
+  (*pn)->car=0;
   (*pn)->fin=false;
   (*pn)->fils=NULL;
   return ;
 }
 
 
-/* Fonction initialisant un tableau de pointeurs de noeuds */
+/* Fonction initialisant un tableau de pointeurs de noeuds ; chaque fils vaut 'NULL' */
 void init_tableau_pt(tableau_pt **pt){
   if (*pt == NULL)  *pt = malloc(sizeof(tableau_pt));
   for (int i=0 ; i<NB_CAR ; i++){
-    free_node(&(*pt)->T[i]);
+    (*pt)->T[i] = NULL;
   }
 }
-
-void ajout_node(Node **pn, char car, bool fin){
-  if (*pn==NULL)    *pn = malloc(sizeof(Node));
-  (*pn)->car = car;
-  (*pn)->fin = fin;
-  (*pn)->fils = NULL;
-}
-
-/*Fonction renvoyant l'indice jusqu'auquel le mot est présent dans le dictionnaire
-Exemple : mot recherché 'we' ; mot existant dans le dico 'were'
-L'indice renvoyé sera '1'
-Si le mot n'est pas présent, renvoie -1
-*/
-int indice(Node *pn, char mot[TAILLE_MOT]){
-  if (pn==NULL) return -1;
-  int taille = strlen(mot);
-  int i=-1;    //indice de position qui sera renvoyé
-  int k=0;     //compteur d'indice du tableau 'fils'
-  while (k<NB_CAR){
-    if (pn->car == mot[i+1]){       //le caractère en position i+1 est correct
-      i++;
-      if (i==taille-1) return i;            //cas où le mot exact est trouvé
-      if (pn->fils->T[k] == NULL) return i;    //cas où il n'existe pas de mot plus grand que mot[0:i ]dans le dico
-      else{
-	pn = pn->fils->T[k];
-	k=0;
-      }
-    }
-    else k++;
-  }
-  return i;     //le caractère mot[i+1] n'est pas pas trouvé
-}
-
-
-/* Fonction recherchant si un fils associé à un caractère existe */
-bool recherche(Node *pn, char c){
-  int i = c-'a';
-  //bool condition = (pn->fils->T[i] == NULL);
-  if (pn->fils->T[i] == NULL){
-    return false;
-  }
-  else return true;
-}
-
 
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre*/
@@ -104,24 +72,28 @@ int ajout_dico(Node **noeud, char mot[TAILLE_MOT]){
     return 0;
   }
 
-  if (*noeud == NULL){                                   // le caractère à ajouter n'était pas présent dans le dico
-    init_tree(noeud);
+  if ((*noeud)->car == 0)  init_node(noeud, mot[0], false);         //ajout du caractère mot[0] s'il n'est pas déjà présent
+  
+  if (strlen(mot) == 1){
+    (*noeud)->fin = true;
+    return 1;                     // si le mot ne contient qu'un caractère
   }
   
-  if (strlen(mot) == 1){                                 // si le mot ne contient qu'un caractère
-    ajout_node(noeud, mot[0], true);
-    return 1;    
-  }
-  else{
-    int i =mot[0]-'a';
-    if (!recherche(*noeud, mot[0])){                     //si le fils n'existe pas
-      
-      init_tree(&(*noeud)->fils->T[i]);
+  else{                                                  // sinon, il y a d'autres caractères à ajouter
+    int i =mot[1]-'a';
+
+    if ((*noeud)->fils == NULL){                           // si le tableau fils n'est pas initialisé
+      init_tableau_pt(&(*noeud)->fils);
     }
-    ajout_dico(&(*noeud)->fils->T[i], &mot[1]); 
+    
+    if ((*noeud)->fils->T[i] == NULL)   new_node(&(*noeud)->fils-> T[i]);  // si le fils correspondant au caractère suivant (mot[1]) n'existe pas
+    
+    ajout_dico(&(*noeud)->fils->T[i], &mot[1]);      // ajout du caractère suivant
   }
   return 1;
 }
+
+
 
 
 //TODO FONCTION CASSE qui met un mot en minuscules
@@ -129,14 +101,14 @@ int ajout_dico(Node **noeud, char mot[TAILLE_MOT]){
 
 
 int main(){
-  Node *dico;
-  init_tree(&dico);
+  Node *dico = NULL;
+  new_node(&dico);
   ajout_dico(&dico, "abc");
   ajout_dico(&dico, "ab");
   ajout_dico(&dico, "abb");
 
-  free_node(&dico);
+  free_tree(&dico);
   return 0;
 }
 
-
+//TODO initialiser dico en tant que tableau, non en tant que noeud
