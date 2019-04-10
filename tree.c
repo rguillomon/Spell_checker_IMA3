@@ -74,7 +74,12 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   if (*pt == NULL) init_tableau_pt(pt);
 
-  int i = mot[0] -'a';
+  int i;
+  if (mot[0] >= 'a' && mot[0]<= 'z') i = mot[0] -'a';
+  if (mot[0] == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
+  if (mot[0] == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
+
+  
   if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
     new_node(&(*pt)->T[i]);
     (*pt)->T[i]->car = mot[0];
@@ -136,19 +141,36 @@ int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]){
 }
 
 
-//TODO FONCTION CASSE qui met un mot en minuscules
+/*Fonction qui met un mot en minuscules */
+void casse(char mot[TAILLE_MOT]){
+  int taille = strlen(mot);
+  for (int i=0; i<taille; i++){
+    if (mot[i] >= 65 && mot[i]<=90) mot[i] += 32;
+  }
+  return ;
+}
 
 
+void charge_fichier(FILE *fichier, tableau_pt **pt){
+  char mot[TAILLE_MOT];
+
+  while (fscanf(fichier, "%s", mot) == 1){
+    casse(mot);
+    ajout_dico(pt, mot);
+  }
+  return ;
+}
 
 int main(){
   tableau_pt *dico = NULL;
-  ajout_dico(&dico, "ver");
-  ajout_dico(&dico, "vers");
-  ajout_dico(&dico, "vertical");
-  ajout_dico(&dico, "agneaux");
-  ajout_dico(&dico, "verticalite");
-  ajout_dico(&dico, "verticaux");
 
+  FILE *fichier;
+  fichier = fopen("eng_list.txt","r");
+  if (fichier != NULL){
+    charge_fichier(fichier, &dico);
+  }
+  if (fichier !=NULL) fclose(fichier);
+  
   char mot[TAILLE_MOT] = "";
   printf("\n");
   affiche_tab(dico,mot);
@@ -157,4 +179,3 @@ int main(){
   return 0;
 }
 
-//TODO initialiser dico en tant que tableau, non en tant que noeud
