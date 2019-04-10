@@ -4,7 +4,7 @@
 #include <string.h>
 
 #define NB_CAR 28
-#define TAILLE_MOT 30
+#define TAILLE_MOT 50
 
 typedef struct tableau_pt{
   struct node *T[NB_CAR];
@@ -96,6 +96,44 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 }
 
 
+/* Fonction récursive affichant le contenu d'un tableau */
+int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]){
+  if (pt == NULL){
+    printf("\n");
+    return 0;
+  }
+  int affi = 0;
+  int affj = 0;
+  char motSuiv[TAILLE_MOT];
+    
+  for (int i=0; i<NB_CAR ; i++){
+
+    
+    if (pt->T[i] != NULL){                        //le tableau contient une lettre
+      strcpy(motSuiv,mot);
+      if (affj) printf("%s",mot);                     //si la lettre mot[j] change, on raffiche le mot jusqu'à mot[i]
+
+      char caractere[TAILLE_MOT];                   //on affiche mot[j] à la suite
+      caractere[0]=pt->T[i]->car;
+      printf("%s",caractere);
+      strcat(motSuiv,caractere);
+      
+      if (pt->T[i]->fin){                          // si la lettre est la fin d'un mot, on affiche ';' à la suite
+	printf(";");
+	strcat(motSuiv,";");
+      }
+      
+      //printf("\n motSuiv : %s\n",motSuiv);
+
+      if (affiche_tab(pt->T[i]->fils, motSuiv)){            // si une lettre suivante a été affichée
+	affi=1;                                     // on saute à la ligne et on le note pour rafficher jusqu'à mot[i] pour la sortie de la fonction
+	printf("\n");
+      }
+      affj = 1;
+    }
+  }
+  return affi;
+}
 
 
 //TODO FONCTION CASSE qui met un mot en minuscules
@@ -104,17 +142,16 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
 int main(){
   tableau_pt *dico = NULL;
-  ajout_dico(&dico, "abc");
-  ajout_dico(&dico, "ab");
-  ajout_dico(&dico, "abb");
+  ajout_dico(&dico, "ver");
+  ajout_dico(&dico, "vers");
+  ajout_dico(&dico, "vertical");
+  ajout_dico(&dico, "agneaux");
+  ajout_dico(&dico, "verticalite");
+  ajout_dico(&dico, "verticaux");
 
-  printf("%c\n", dico->T[0]->car);
-  printf("%d\n", dico->T[0]->fin);
-  printf("%p\n", dico->T[0]->fils->T[0]);
-  printf("%c\n", dico->T[0]->fils->T[1]->car);
-  printf("%d\n", dico->T[0]->fils->T[1]->fin);
-  printf("%c\n", dico->T[0]->fils->T[1]->fils->T[1]->car);
-  printf("%d\n", dico->T[0]->fils->T[1]->fils->T[2]->fin);
+  char mot[TAILLE_MOT] = "";
+  printf("\n");
+  affiche_tab(dico,mot);
   
   free_tableau_pt(&dico);
   return 0;
