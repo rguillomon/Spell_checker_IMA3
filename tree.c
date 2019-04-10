@@ -73,8 +73,11 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
   }
 
   if (*pt == NULL) init_tableau_pt(pt);
-
-  int i = mot[0] -'a';
+	int i;
+  if (mot[0] >= 'a' && mot[0]<= 'z') i = mot[0] -'a';
+  if (mot[0] == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
+  if (mot[0] == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
+  
   if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
     new_node(&(*pt)->T[i]);
     (*pt)->T[i]->car = mot[0];
@@ -142,6 +145,9 @@ int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]){
 
 int main(){
   tableau_pt *dico = NULL;
+  ajout_dico(&dico, "'ver");
+  ajout_dico(&dico, "'ver-saire");
+  ajout_dico(&dico, "'ver'saire");
   ajout_dico(&dico, "ver");
   ajout_dico(&dico, "vers");
   ajout_dico(&dico, "vertical");
