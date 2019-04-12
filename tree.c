@@ -171,9 +171,9 @@ int main(){
   }
   if (fichier !=NULL) fclose(fichier);
   
-  char mot[TAILLE_MOT] = "";
-  printf("\n");
-  affiche_tab(dico,mot);
+  //char mot[TAILLE_MOT] = "";
+  //printf("\n");
+  //affiche_tab(dico,mot);
   
   free_tableau_pt(&dico);
   return 0;
