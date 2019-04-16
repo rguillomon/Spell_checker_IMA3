@@ -17,13 +17,39 @@ typedef struct node{
 } Node;
 
 
+/* Fonction créant un noeud */
+void new_node(Node **pn){
+  if (*pn==NULL) *pn=malloc(sizeof(Node));
+  (*pn)->car=0;
+  (*pn)->fin=false;
+  (*pn)->fils=NULL;
+  return ;
+}
+
+
+/* Fonction initialisant les composantes d'un noeud */
+void init_node(Node **pn, char car, bool fin){
+  if (*pn==NULL)    new_node(pn);
+  (*pn)->car = car;
+  (*pn)->fin = fin;
+}
+
+
+/* Fonction initialisant un tableau de pointeurs de noeuds ; chaque fils vaut 'NULL' */
+void init_tableau_pt(tableau_pt **pt){
+  if (*pt == NULL)  *pt = malloc(sizeof(tableau_pt));
+  for (int i=0 ; i<NB_CAR ; i++){
+    (*pt)->T[i] = NULL;
+  }
+}
+
+
 /* Libération récursive d'un arbre */
 void free_tree(Node **pn){
   if (*pn == NULL) return ;
   if ((*pn)->fils != NULL) free_tableau_pt(&(*pn)->fils);
   free(*pn);
   *pn=NULL;
-
   return;
 }
 
@@ -38,33 +64,6 @@ void free_tableau_pt(tableau_pt **pt){
 }
 
 
-/* Fonction initialisant les composantes d'un noeud */
-void init_node(Node **pn, char car, bool fin){
-  if (*pn==NULL)    *pn = malloc(sizeof(Node));
-  (*pn)->car = car;
-  (*pn)->fin = fin;
-}
-
-
-/* Fonction créant un noeud */
-void new_node(Node **pn){
-  if (*pn==NULL) *pn=malloc(sizeof(Node));
-  (*pn)->car=0;
-  (*pn)->fin=false;
-  (*pn)->fils=NULL;
-  return ;
-}
-
-
-/* Fonction initialisant un tableau de pointeurs de noeuds ; chaque fils vaut 'NULL' */
-void init_tableau_pt(tableau_pt **pt){
-  if (*pt == NULL)  *pt = malloc(sizeof(tableau_pt));
-  for (int i=0 ; i<NB_CAR ; i++){
-    (*pt)->T[i] = NULL;
-  }
-}
-
-
 /* Fonction renvoyant l'indice du caractère dans tableau_pt */
 int indice_tab(char c){
   int i=-1;
@@ -73,6 +72,44 @@ int indice_tab(char c){
   if (c == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
   return i;
 }
+
+
+/*Fonction qui met un mot en minuscules */
+void casse(char mot[TAILLE_MOT]){
+  int taille = strlen(mot);
+  for (int i=0; i<taille; i++){
+    if (mot[i] >= 65 && mot[i]<=90) mot[i] += 32;
+  }
+  return ;
+}
+
+
+/* Fonction déterminant si un mot donné est présent dans un dictionnaire */
+bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
+  tableau_pt *pt = dico;
+  int taille = strlen(mot);
+  int i=0;                      //position dans le mot
+  int j;
+  bool fin;
+  
+  while ((pt !=NULL) && i<taille){
+    j = indice_tab(mot[i]);
+    if (j==-1) return false;                //caractère non reconnu
+      
+    if (pt->T[j] == NULL) return false ;      // le caractère mot[i] n'est pas trouvé donc le mot n'est pas dans le dictionnaire
+    else{
+      i++;
+      if (i==taille) fin = pt->T[j]->fin;
+      pt = pt->T[j]->fils;
+    }
+  }
+  if ((pt != NULL) || ((i == taille) && fin)) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
+  else{
+    return false;
+    printf("mot non reconnu : %s\n",mot);
+  }
+}
+
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre */
 int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
@@ -85,7 +122,7 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   int i = indice_tab(mot[0]);
   if (i==-1){
-    printf("Caractère %c non reconnu : mot non ajouté.\n",mot[0]);
+    printf("Caractère '%c' non reconnu : mot non ajouté.\n",mot[0]);                
     return 0;
   }
   
@@ -150,16 +187,6 @@ int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]){
 }
 
 
-/*Fonction qui met un mot en minuscules */
-void casse(char mot[TAILLE_MOT]){
-  int taille = strlen(mot);
-  for (int i=0; i<taille; i++){
-    if (mot[i] >= 65 && mot[i]<=90) mot[i] += 32;
-  }
-  return ;
-}
-
-
 /* Charge le dictionnaire mot à mot */
 void charge_dico(FILE *fichier, tableau_pt **pt){
   char mot[TAILLE_MOT];
@@ -168,33 +195,6 @@ void charge_dico(FILE *fichier, tableau_pt **pt){
     ajout_dico(pt, mot);
   }
   return ;
-}
-
-
-/* Fonction déterminant si un mot donné est présent dans un dictionnaire */
-bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
-  tableau_pt *pt = dico;
-  int taille = strlen(mot);
-  int i=0;                      //position dans le mot
-  int j;
-  bool fin;
-  
-  while ((pt !=NULL) && i<taille){
-    j = indice_tab(mot[i]);
-    if (j==-1) return false;                //caractère non reconnu
-      
-    if (pt->T[j] == NULL) return false ;      // le caractère mot[i] n'est pas trouvé donc le mot n'est pas dans le dictionnaire
-    else{
-      i++;
-      if (i==taille) fin = pt->T[j]->fin;
-      pt = pt->T[j]->fils;
-    }
-  }
-  if ((pt != NULL) || ((i == taille) && fin)) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
-  else{
-    return false;
-    printf("mot non reconnu : %s\n",mot);
-  }
 }
 
 
