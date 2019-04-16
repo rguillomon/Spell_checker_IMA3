@@ -65,7 +65,16 @@ void init_tableau_pt(tableau_pt **pt){
 }
 
 
-/* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre*/
+/* Fonction renvoyant l'indice du caractère dans tableau_pt */
+int indice_tab(char c){
+  int i=-1;
+  if (c >= 'a' && c<= 'z') i = c -'a';
+  if (c == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
+  if (c == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
+  return i;
+}
+
+/* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre */
 int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
   if (TAILLE_MOT-1 < strlen(mot)){                        // si le mot ne contient pas '\0', on revoie 0
     printf("Le mot n'a pas pu être ajouté.\n");
@@ -74,11 +83,11 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   if (*pt == NULL) init_tableau_pt(pt);
 
-  int i;
-  if (mot[0] >= 'a' && mot[0]<= 'z') i = mot[0] -'a';
-  if (mot[0] == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
-  if (mot[0] == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
-
+  int i = indice_tab(mot[0]);
+  if (i==-1){
+    printf("Caractère %c non reconnu : mot non ajouté.\n",mot[0]);
+    return 0;
+  }
   
   if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
     new_node(&(*pt)->T[i]);
@@ -151,9 +160,9 @@ void casse(char mot[TAILLE_MOT]){
 }
 
 
-void charge_fichier(FILE *fichier, tableau_pt **pt){
+/* Charge le dictionnaire mot à mot */
+void charge_dico(FILE *fichier, tableau_pt **pt){
   char mot[TAILLE_MOT];
-
   while (fscanf(fichier, "%s", mot) == 1){
     casse(mot);
     ajout_dico(pt, mot);
@@ -161,15 +170,94 @@ void charge_fichier(FILE *fichier, tableau_pt **pt){
   return ;
 }
 
+
+/* Fonction déterminant si un mot donné est présent dans un dictionnaire */
+bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
+  tableau_pt *pt = dico;
+  int taille = strlen(mot);
+  int i=0;                      //position dans le mot
+  int j;
+  bool fin;
+  
+  while ((pt !=NULL) && i<taille){
+    j = indice_tab(mot[i]);
+    if (j==-1) return false;                //caractère non reconnu
+      
+    if (pt->T[j] == NULL) return false ;      // le caractère mot[i] n'est pas trouvé donc le mot n'est pas dans le dictionnaire
+    else{
+      i++;
+      if (i==taille) fin = pt->T[j]->fin;
+      pt = pt->T[j]->fils;
+    }
+  }
+  if ((pt != NULL) || ((i == taille) && fin)) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
+  else{
+    return false;
+    printf("mot non reconnu : %s\n",mot);
+  }
+}
+
+
+/* Fonction chargeant le fichier à analyser et le met dans un tableau_pt de réception */
+int charge_texte(FILE *fichier, tableau_pt **dico){
+  int c=fgetc(fichier);
+  int i=0;
+  int erreur=0;
+  char mot[TAILLE_MOT] = "";
+
+  while (c != EOF){
+    if ((c=='.') || (c==' ') || (c==',') || (c==':') || (c==';') || (c=='!') || (c=='?') || (c=='(') || (c==')') || (c=='"')  || (c=='\n')){      // cas de terminaison d'un mot
+      mot[i]='\0';
+      casse(mot);
+      if (!recherche(*dico, mot)){
+	erreur++;
+	printf("Mot incorrect : %s\n",mot);
+      }
+      i=0;
+      c=fgetc(fichier);
+    }
+    else{
+      if (i==TAILLE_MOT-1){                                          //cas d'un mot à charger trop long
+	printf(" Erreur de chargement : un mot est trop long.\n");
+	return -1;
+      }
+      else{
+	mot[i]=c;
+	i++;
+	c=fgetc(fichier);
+      }
+    }
+  }
+  mot[i]='\0';
+  casse(mot);
+  if (!recherche(*dico, mot)){
+    erreur++;
+    printf("Mot incorrect : %s\n",mot);
+  }
+  return erreur;
+}
+
 int main(){
   tableau_pt *dico = NULL;
-
   FILE *fichier;
-  fichier = fopen("eng_list.txt","r");
+  int erreur;
+  
+  fichier = fopen("eng_list.txt","r");             //Chargement du dictionnaire
   if (fichier != NULL){
-    charge_fichier(fichier, &dico);
+    charge_dico(fichier, &dico);
   }
   if (fichier !=NULL) fclose(fichier);
+
+  printf("Dictionnaire chargé !\n");
+
+  fichier = fopen("text.txt","r");
+  if (fichier != NULL){
+    erreur = charge_texte(fichier, &dico);
+  }
+  if (fichier !=NULL) fclose(fichier);
+
+  if (erreur ==-1) printf("Une erreur est survenue lors du chargement du fichier.\n");
+  else  printf("Mot(s) non reconnu(s) par le dictionnaire : %d.\n",erreur);
   
   //char mot[TAILLE_MOT] = "";
   //printf("\n");
