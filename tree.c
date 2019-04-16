@@ -1,20 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
+/* Code Source by Rémi GUILLOMON */
 
-#define NB_CAR 28
-#define TAILLE_MOT 50
-
-typedef struct tableau_pt{
-  struct node *T[NB_CAR];
-} tableau_pt;
-
-typedef struct node{
-  char car;
-  bool fin;
-  struct tableau_pt *fils;
-} Node;
+#include "tree.h"
 
 
 /* Fonction créant un noeud */
@@ -53,6 +39,8 @@ void free_tree(Node **pn){
   return;
 }
 
+
+/*Libération d'un tableau_pt */
 void free_tableau_pt(tableau_pt **pt){
   if (*pt == NULL) return ;
   for (int i=0 ; i<NB_CAR ;i++){
@@ -147,46 +135,6 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 }
 
 
-/* Fonction récursive affichant le contenu d'un tableau */
-int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]){
-  if (pt == NULL){
-    printf("\n");
-    return 0;
-  }
-  int affi = 0;
-  int affj = 0;
-  char motSuiv[TAILLE_MOT];
-    
-  for (int i=0; i<NB_CAR ; i++){
-
-    
-    if (pt->T[i] != NULL){                        //le tableau contient une lettre
-      strcpy(motSuiv,mot);
-      if (affj) printf("%s",mot);                     //si la lettre mot[j] change, on raffiche le mot jusqu'à mot[i]
-
-      char caractere[TAILLE_MOT];                   //on affiche mot[j] à la suite
-      caractere[0]=pt->T[i]->car;
-      printf("%s",caractere);
-      strcat(motSuiv,caractere);
-      
-      if (pt->T[i]->fin){                          // si la lettre est la fin d'un mot, on affiche ';' à la suite
-	printf(";");
-	strcat(motSuiv,";");
-      }
-      
-      //printf("\n motSuiv : %s\n",motSuiv);
-
-      if (affiche_tab(pt->T[i]->fils, motSuiv)){            // si une lettre suivante a été affichée
-	affi=1;                                     // on saute à la ligne et on le note pour rafficher jusqu'à mot[i] pour la sortie de la fonction
-	printf("\n");
-      }
-      affj = 1;
-    }
-  }
-  return affi;
-}
-
-
 /* Charge le dictionnaire mot à mot */
 void charge_dico(FILE *fichier, tableau_pt **pt){
   char mot[TAILLE_MOT];
@@ -236,34 +184,3 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
   }
   return erreur;
 }
-
-int main(){
-  tableau_pt *dico = NULL;
-  FILE *fichier;
-  int erreur;
-  
-  fichier = fopen("eng_list.txt","r");             //Chargement du dictionnaire
-  if (fichier != NULL){
-    charge_dico(fichier, &dico);
-  }
-  if (fichier !=NULL) fclose(fichier);
-
-  printf("Dictionnaire chargé !\n");
-
-  fichier = fopen("text.txt","r");
-  if (fichier != NULL){
-    erreur = charge_texte(fichier, &dico);
-  }
-  if (fichier !=NULL) fclose(fichier);
-
-  if (erreur ==-1) printf("Une erreur est survenue lors du chargement du fichier.\n");
-  else  printf("Mot(s) non reconnu(s) par le dictionnaire : %d.\n",erreur);
-  
-  //char mot[TAILLE_MOT] = "";
-  //printf("\n");
-  //affiche_tab(dico,mot);
-  
-  free_tableau_pt(&dico);
-  return 0;
-}
-
