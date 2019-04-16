@@ -74,11 +74,14 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   if (*pt == NULL) init_tableau_pt(pt);
 
-  int i;
+  int i=-1;
   if (mot[0] >= 'a' && mot[0]<= 'z') i = mot[0] -'a';
   if (mot[0] == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
   if (mot[0] == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
-
+	if (i==-1){
+		printf("Le caractère '%c' n'est pas reconnu, le mot n'a pas pu être ajouté.\n",mot[0]);
+		return 0;
+	}
   
   if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
     new_node(&(*pt)->T[i]);
