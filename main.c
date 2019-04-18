@@ -8,7 +8,7 @@ int main(){
   FILE *fichier;
   int erreur;
   
-  fichier = fopen("eng_list.txt","r");             //Chargement du dictionnaire
+  fichier = fopen("liste_francais.txt","r");             //Chargement du dictionnaire
   if (fichier != NULL){
     charge_dico(fichier, &dico);
   }
@@ -25,9 +25,9 @@ int main(){
   if (erreur ==-1) printf("Une erreur est survenue lors du chargement du fichier.\n");
   else  printf("Mot(s) non reconnu(s) par le dictionnaire : %d.\n",erreur);
   
-  //char mot[TAILLE_MOT] = "";
-  //printf("\n");
-  //affiche_tab(dico,mot);
+  wchar_t mot[TAILLE_MOT] = L"";
+  printf("\n");
+  affiche_tab(dico,mot);
   
   free_tableau_pt(&dico);
   return 0;

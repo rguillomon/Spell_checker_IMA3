@@ -10,8 +10,8 @@ Exemple : mot recherché 'we' ; mot existant dans le dico 'were'
 L'indice renvoyé sera '1'
 Si le mot n'est pas présent, renvoie -1
 */
-int indice(Node *pn, char mot[TAILLE_MOT]);
+int indice(Node *pn, wchar_t mot[TAILLE_MOT]);
 
 
 /* Fonction récursive affichant le contenu d'un tableau */
-int affiche_tab(tableau_pt *pt, char mot[TAILLE_MOT]);
+int affiche_tab(tableau_pt *pt, wchar_t mot[TAILLE_MOT]);

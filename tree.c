@@ -14,7 +14,7 @@ void new_node(Node **pn){
 
 
 /* Fonction initialisant les composantes d'un noeud */
-void init_node(Node **pn, char car, bool fin){
+void init_node(Node **pn, wchar_t car, bool fin){
   if (*pn==NULL)    new_node(pn);
   (*pn)->car = car;
   (*pn)->fin = fin;
@@ -53,29 +53,47 @@ void free_tableau_pt(tableau_pt **pt){
 
 
 /* Fonction renvoyant l'indice du caractère dans tableau_pt */
-int indice_tab(char c){
+int indice_tab(wchar_t c){
   int i=-1;
-  if (c >= 'a' && c<= 'z') i = c -'a';
+  if (c >= 'a' && c<= 'z') i = c -'a';      //lettres de a à z
   if (c == '-') i = 26;                    // cas du trait d'union -> case 26 du tableau
   if (c == 39)  i = 27;                     // cas de l'apostrophe  -> case 27 du tableau
+  if (c == L'à') i = 28;
+  if (c == L'â') i = 29;
+  if (c == L'ä') i = 30;
+  if (c == L'æ') i = 31;
+  if (c == L'ç') i = 32;
+  if (c == L'è' || c==L'ë') i = c-50055;      // de 33 à 36
+  if (c == L'î' || c==L'ï') i = c-50057;      // de 37 à 38
+  if (c == L'ô') i = 39;
+  if (c == L'ö') i = 40;
+  if (c == L'ù') i = 41;
+  if (c == L'û' || c==L'ü') i = c-50065;      // de 42 à 43
+  if (c == L'œ') i = 44;
+  
   return i;
 }
 
 
 /*Fonction qui met un mot en minuscules */
-void casse(char mot[TAILLE_MOT]){
-  int taille = strlen(mot);
+void casse(wchar_t mot[TAILLE_MOT]){
+  int taille = wcslen(mot);
+  wchar_t c;
   for (int i=0; i<taille; i++){
-    if (mot[i] >= 65 && mot[i]<=90) mot[i] += 32;
+  	c=mot[i];
+    if (c >= 65 && c<=90) mot[i] += 32;  //Lettres sans accent
+    if (c==L'À' || c==L'È' || c==L'É' || c==L'Ê') mot[i] += 32;  //Lettres avec accent
+    if (c==L'Ç') mot[i] += 32;  //Cas de la cédille
+    if (c==L'Œ') mot[i] +=1;    // cas de œ
   }
   return ;
 }
 
 
 /* Fonction déterminant si un mot donné est présent dans un dictionnaire */
-bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
+bool recherche(tableau_pt *dico, wchar_t mot[TAILLE_MOT]){
   tableau_pt *pt = dico;
-  int taille = strlen(mot);
+  int taille = wcslen(mot);
   int i=0;                      //position dans le mot
   int j;
   bool fin;
@@ -94,14 +112,14 @@ bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
   if ((pt != NULL) || ((i == taille) && fin)) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
   else{
     return false;
-    printf("mot non reconnu : %s\n",mot);
+    printf("mot non reconnu : %ls\n",mot);
   }
 }
 
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre */
-int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
-  if (TAILLE_MOT-1 < strlen(mot)){                        // si le mot ne contient pas '\0', on revoie 0
+int ajout_dico(tableau_pt **pt, wchar_t mot[TAILLE_MOT]){
+  if (TAILLE_MOT-1 < wcslen(mot)){                        // si le mot ne contient pas '\0', on revoie 0
     printf("Le mot n'a pas pu être ajouté.\n");
     return 0;
   }
@@ -110,7 +128,7 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   int i = indice_tab(mot[0]);
   if (i==-1){
-    printf("Caractère '%c' non reconnu : mot non ajouté.\n",mot[0]);                
+    printf("Caractère '%lc' non reconnu : mot non ajouté.\n",mot[0]);                
     return 0;
   }
   
@@ -119,7 +137,7 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
     (*pt)->T[i]->car = mot[0];
   }
 
-  if (strlen(mot) == 1){                     // si le mot ne contient qu'un seul caractère
+  if (wcslen(mot) == 1){                     // si le mot ne contient qu'un seul caractère
     (*pt)->T[i]->fin = true;
     return 1;
   }
@@ -137,8 +155,8 @@ int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
 /* Charge le dictionnaire mot à mot */
 void charge_dico(FILE *fichier, tableau_pt **pt){
-  char mot[TAILLE_MOT];
-  while (fscanf(fichier, "%s", mot) == 1){
+  wchar_t mot[TAILLE_MOT];
+  while (fscanf(fichier, "%ls", mot) == 1){
     casse(mot);
     ajout_dico(pt, mot);
   }
@@ -148,21 +166,21 @@ void charge_dico(FILE *fichier, tableau_pt **pt){
 
 /* Fonction chargeant le fichier à analyser et le met dans un tableau_pt de réception */
 int charge_texte(FILE *fichier, tableau_pt **dico){
-  int c=fgetc(fichier);
+  int c=fgetwc(fichier);
   int i=0;
   int erreur=0;
-  char mot[TAILLE_MOT] = "";
+  wchar_t mot[TAILLE_MOT] = L"";
 
   while (c != EOF){
-    if ((c=='.') || (c==' ') || (c==',') || (c==':') || (c==';') || (c=='!') || (c=='?') || (c=='(') || (c==')') || (c=='"')  || (c=='\n')){      // cas de terminaison d'un mot
+    if (c=='.' || c==' ' || c==',' || c==':' || c==';' || c=='!' || c=='?' || c=='(' || c==')' || c=='"'  || c=='\n'){      // cas de terminaison d'un mot
       mot[i]='\0';
       casse(mot);
       if (!recherche(*dico, mot)){
 	erreur++;
-	printf("Mot incorrect : %s\n",mot);
+	printf("Mot incorrect : %ls\n",mot);
       }
       i=0;
-      c=fgetc(fichier);
+      c=fgetwc(fichier);
     }
     else{
       if (i==TAILLE_MOT-1){                                          //cas d'un mot à charger trop long
@@ -172,7 +190,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
       else{
 	mot[i]=c;
 	i++;
-	c=fgetc(fichier);
+	c=fgetwc(fichier);
       }
     }
   }
@@ -180,7 +198,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
   casse(mot);
   if (!recherche(*dico, mot)){
     erreur++;
-    printf("Mot incorrect : %s\n",mot);
+    printf("Mot incorrect : %ls\n",mot);
   }
   return erreur;
 }
