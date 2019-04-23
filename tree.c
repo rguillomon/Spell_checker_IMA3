@@ -99,6 +99,8 @@ bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
   int i=0;                      //position dans le mot
   int j;
   bool fin;
+
+  if (taille==0) return false;
   
   while ((pt !=NULL) && i<taille){
     j = indice_tab(mot[i]);
@@ -173,7 +175,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
     if ((c=='.') || (c==' ') || (c==',') || (c==':') || (c==';') || (c=='!') || (c=='?') || (c=='(') || (c==')') || (c=='"')  || (c=='\n')){      // cas de terminaison d'un mot
       mot[i]='\0';
       casse(mot);
-      if (!recherche(*dico, mot)){
+      if (!recherche(*dico, mot) && (strlen(mot) != 0)){
 	erreur++;
 	printf("Mot incorrect : %s\n",mot);
       }
@@ -194,7 +196,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
   }
   mot[i]='\0';
   casse(mot);
-  if (!recherche(*dico, mot)){
+  if (!recherche(*dico, mot) && (strlen(mot) != 0)){
     erreur++;
     printf("Mot incorrect : %s\n",mot);
   }
