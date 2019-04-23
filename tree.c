@@ -91,15 +91,15 @@ void casse(wchar_t mot[TAILLE_MOT]){
 
 
 /* si le mot ne contient pas '\0', on revoie 0 */
-int verif_taille_mot(char mot[TAILLE_MOT]){ 
-	if(TAILLE_MOT-1 < strlen(mot)) return 0;
+int verif_taille_mot(wchar_t mot[TAILLE_MOT]){ 
+	if(TAILLE_MOT-1 < wcslen(mot)) return 0;
 	else return 1;
 }
 
 
 /* Fonction vérifiant si chaque caractère du mot peut être ajouté */
-int verif_caractere(char mot[TAILLE_MOT]){
-  int taille = strlen(mot);
+int verif_caractere(wchar_t mot[TAILLE_MOT]){
+  int taille = wcslen(mot);
   for (int i=0; i<taille; i++){
     int i_car = indice_tab(mot[i]);
       if (i_car==-1){
@@ -193,7 +193,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
     if (c=='.' || c==' ' || c==',' || c==':' || c==';' || c=='!' || c=='?' || c=='(' || c==')' || c=='"'  || c=='\n'){      // cas de terminaison d'un mot
       mot[i]='\0';
       casse(mot);
-      if (!recherche(*dico, mot) && (strlen(mot) != 0)){
+      if (!recherche(*dico, mot) && (wcslen(mot) != 0)){
 	erreur++;
 	printf("Mot incorrect : %ls\n",mot);
       }
@@ -214,7 +214,7 @@ int charge_texte(FILE *fichier, tableau_pt **dico){
   }
   mot[i]='\0';
   casse(mot);
-  if (!recherche(*dico, mot) && (strlen(mot) != 0)){
+  if (!recherche(*dico, mot) && (wcslen(mot) != 0)){
     erreur++;
     printf("Mot incorrect : %ls\n",mot);
   }

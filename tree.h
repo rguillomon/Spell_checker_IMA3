@@ -38,10 +38,10 @@ void free_tableau_pt(tableau_pt **pt);
 int indice_tab(wchar_t c);
 
 /* si le mot ne contient pas '\0', on revoie 0 */
-int verif_taille_mot(char mot[TAILLE_MOT]);
+int verif_taille_mot(wchar_t mot[TAILLE_MOT]);
 
 /* Fonction vérifiant si chaque caractère du mot peut être ajouté */
-int verif_caractere(char mot[TAILLE_MOT]);
+int verif_caractere(wchar_t mot[TAILLE_MOT]);
 
 /*Fonction qui met un mot en minuscules */
 void casse(wchar_t mot[TAILLE_MOT]);
