@@ -72,6 +72,26 @@ void casse(char mot[TAILLE_MOT]){
 }
 
 
+/* si le mot ne contient pas '\0', on revoie 0 */
+int verif_taille_mot(char mot[TAILLE_MOT]){ 
+	if(TAILLE_MOT-1 < strlen(mot)) return 0;
+	else return 1;
+}
+
+
+/* Fonction vérifiant si chaque caractère du mot peut être ajouté */
+int verif_caractere(char mot[TAILLE_MOT]){
+  int taille = strlen(mot);
+  for (int i=0; i<taille; i++){
+    int i_car = indice_tab(mot[i]);
+      if (i_car==-1){
+	//printf("Caractère '%c' non reconnu.\n",mot[0]);                
+	return 0;
+      }
+  }
+  return 1;
+}
+
 /* Fonction déterminant si un mot donné est présent dans un dictionnaire */
 bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
   tableau_pt *pt = dico;
@@ -101,18 +121,10 @@ bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre */
 int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
-  if (TAILLE_MOT-1 < strlen(mot)){                        // si le mot ne contient pas '\0', on revoie 0
-    printf("Le mot n'a pas pu être ajouté.\n");
-    return 0;
-  }
 
   if (*pt == NULL) init_tableau_pt(pt);
 
   int i = indice_tab(mot[0]);
-  if (i==-1){
-    printf("Caractère '%c' non reconnu : mot non ajouté.\n",mot[0]);                
-    return 0;
-  }
   
   if ((*pt)->T[i] == NULL){            //ajout du caractère mot[0] au dictionnaire s'il n'est pas déjà présent
     new_node(&(*pt)->T[i]);
@@ -140,7 +152,11 @@ void charge_dico(FILE *fichier, tableau_pt **pt){
   char mot[TAILLE_MOT];
   while (fscanf(fichier, "%s", mot) == 1){
     casse(mot);
-    ajout_dico(pt, mot);
+    if (verif_taille_mot(mot) && verif_caractere(mot))
+      {
+	ajout_dico(pt, mot); //Si le mot n'est pas trop long et si tous les caractères peuvent être ajoutés
+      }
+    //else printf("Le mot n'a pas pu être ajouté");
   }
   return ;
 }
