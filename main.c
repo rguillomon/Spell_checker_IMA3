@@ -1,7 +1,7 @@
 /* Code Source by Rémi GUILLOMON */
 
 #include "annexe.h"
-
+#include <locale.h>
 
 int main(){
   tableau_pt *dico = NULL;
@@ -9,6 +9,8 @@ int main(){
   int erreur;
   
   fichier = fopen("liste_francais.txt","r");             //Chargement du dictionnaire
+  setlocale(LC_ALL,""); // tell stdlib to convert chars to 4 bytes
+
   if (fichier != NULL){
     charge_dico(fichier, &dico);
   }

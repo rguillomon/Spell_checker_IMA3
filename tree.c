@@ -170,7 +170,7 @@ int ajout_dico(tableau_pt **pt, wchar_t mot[TAILLE_MOT]){
 /* Charge le dictionnaire mot à mot */
 void charge_dico(FILE *fichier, tableau_pt **pt){
   wchar_t mot[TAILLE_MOT];
-  while (fscanf(fichier, "%ls", mot) == 1){
+  while (fscanf(fichier, "%ls", mot) == 1){     //TODO prendre ex wprintf -> wfscanf? wscanf? cf archives.plil > accents.c
     casse(mot);
     if (verif_taille_mot(mot) && verif_caractere(mot))
       {
