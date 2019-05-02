@@ -111,7 +111,7 @@ bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
       pt = pt->T[j]->fils;
     }
   }
-  if ((pt != NULL) || ((i == taille) && fin)) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
+  if ((i == taille) && fin) return true;      // si mot se trouve dans le dictionnaire et que son dernier caractère est la fin d'un mot
   else{
     return false;
     printf("mot non reconnu : %s\n",mot);
@@ -120,6 +120,7 @@ bool recherche(tableau_pt *dico, char mot[TAILLE_MOT]){
 
 
 /* Fonction récursive ajoutant le mot (en MINUSCULE) à la suite de l'arbre */
+/* Attention, le mot doit contenir au plus TAILLE_MOT-1 caractères et chacun doit exister dans tableau_pt */
 int ajout_dico(tableau_pt **pt, char mot[TAILLE_MOT]){
 
   if (*pt == NULL) init_tableau_pt(pt);
