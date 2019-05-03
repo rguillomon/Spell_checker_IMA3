@@ -1,3 +1,6 @@
+//Code source par Rémi GUILLOMON
+//Mai 2019
+
 #include "annexe.h"
 
 /* Fonction récursive affichant le contenu d'un tableau */

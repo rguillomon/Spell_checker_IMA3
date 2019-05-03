@@ -1,4 +1,5 @@
-/* By Rémi GUILLOMON */
+//Code source par Rémi GUILLOMON
+//Mai 2019
 
 #include <string.h>
 #include <stdio.h>
