@@ -2,9 +2,9 @@ Code source par Rémi GUILLOMON
 
 Mai 2019
 
-#Vérificateur orthographique
+# Vérificateur orthographique
 
-##Description rapide
+## Description rapide
 
 Ce programme est un vérificateur d'orthographe qui compte et affiche les mots non reconnus par un dictionnaire dans un texte.
 
@@ -12,7 +12,7 @@ Le dictionnaire et le texte à analyser sont à fournir mais `eng_list.txt` (dic
 
 Si un mot du texte est plus grand que TAILLE_MOT (défini dans tree.h), alors le programme affiche un message d'erreur et le processus est annulé.
 
-##Mode d'emploi
+## Mode d'emploi
 
 Voici les fichiers nécessaires au fonctionnement du programme:
 - `annexe.c` et `annexe.h`
@@ -29,4 +29,3 @@ Puis exécuter avec vos fichiers :
 > ./exe eng_list.txt text.txt
 
 Voilà, le tour est joué !
-
